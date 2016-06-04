@@ -1,0 +1,4 @@
+module yaml [system] {
+    header "./src/yaml.h"
+    export *
+}
