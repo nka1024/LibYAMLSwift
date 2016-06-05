@@ -16,47 +16,39 @@ enum YAMLNodeType  {
 
 class YAMLNode  {
     
-    var data:AnyObject
-    var type:YAMLNodeType
-    
-    init (type:YAMLNodeType, parent:YAMLNode) {
+	var key   :String
+	var value :AnyObject
+	
+    var type  :YAMLNodeType
+	var parent:YAMLNode?
+	
+	init (key:String, value:AnyObject?, type:YAMLNodeType, parent:YAMLNode?) {
         
-        self.type = type
-        
-        if (type == YAMLNodeType.YAMLNodeTypeMapping || type == YAMLNodeType.YAMLNodeTypeScalar) {
-            data = Dictionary<String, YAMLNode>()
-        }
-        else if (type == YAMLNodeType.YAMLNodeTypeSequence) {
-            data = Array<AnyObject>()
-        }
-        else {
-            data = 0
-        }
+        self.type   = type
+        self.parent = parent
+		self.key    = key
+		
+		switch type {
+			case YAMLNodeType.YAMLNodeTypeMapping:   self.value = Dictionary<String, YAMLNode>()
+			case YAMLNodeType.YAMLNodeTypeSequence:  self.value = Array<AnyObject>()
+			case YAMLNodeType.YAMLNodeTypeScalar:    self.value = value!
+		}
     }
     
-    func addScalar(key:String, value:AnyObject) -> Void {
-        
-        if (type == YAMLNodeType.YAMLNodeTypeMapping || type == YAMLNodeType.YAMLNodeTypeScalar) {
-            data = Dictionary<String, YAMLNode>()
-        }
-        else if (type == YAMLNodeType.YAMLNodeTypeSequence) {
-            data = Array<AnyObject>()
-        }
-        else {
-            data = 0
-        }
+	func addChild(child:YAMLNode) -> Void {
+		
+		switch type {
+			case YAMLNodeType.YAMLNodeTypeMapping:
+				let value:Dictionary<String, AnyObject> = self.value as! Dictionary<String, AnyObject>
+				self.value.setValue(child, forKey: child.key)
+			
+			case YAMLNodeType.YAMLNodeTypeSequence:
+				let value:Array<AnyObject> = self.value as! Array<AnyObject>
+				self.value.addObject(child)
+			
+			case YAMLNodeType.YAMLNodeTypeScalar:
+				print("Error: trying to add child to scalar node")
+		}
     }
-    
-    func addMapping(key:String, value:YAMLNode) -> Void {
-        
-        if (type == YAMLNodeType.YAMLNodeTypeMapping || type == YAMLNodeType.YAMLNodeTypeScalar) {
-            data = Dictionary<String, YAMLNode>()
-        }
-        else if (type == YAMLNodeType.YAMLNodeTypeSequence) {
-            data = Array<AnyObject>()
-        }
-        else {
-            data = 0
-        }
-    }
+	
 }

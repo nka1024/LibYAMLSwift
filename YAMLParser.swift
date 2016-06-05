@@ -52,18 +52,11 @@ public class YAMLParser {
         
         yaml_parser_initialize(&parser)
         yaml_parser_set_input_file(&parser, fileHandler)
-        
-//        var result:Dictionary<String, AnyObject> ;
-//        var currentMap:Dictionary<String, AnyObject>;
-//        var currentSequence:Array<AnyObject>;
-//        var currentKey:String?;
-//        var currentValue:AnyObject;
-//        var lastTokenType:yaml_token_type_e = YAML_STREAM_START_TOKEN;
-//        var currentParentNode:yaml_token_type_e = YAML_BLOCK_MAPPING_START_TOKEN;
-//        
-//        var path:Array<AnyObject> = Array()
-        
-        repeat {
+		
+		var node:YAMLNode? = YAMLNode(key: "", value: nil, type: YAMLNodeType.YAMLNodeTypeSequence, parent: nil)
+		var lastKey:String? = "parent"
+		
+		repeat {
             if yaml_parser_scan(&parser, &token) == 0 {
                 print("Parser error %d\n", parser.error)
                 exit(EXIT_FAILURE);
@@ -79,24 +72,39 @@ public class YAMLParser {
                     print("STREAM START");
                 case YAML_STREAM_END_TOKEN:
                     print("STREAM END");
-                    /* Token types (read before actual token) */
+				
+				/* Token types (read before actual token) */
                 case YAML_KEY_TOKEN:
                     print("(Key token) ");
-                    currentKey = scalarToString(token.data.scalar)
-//                    if currentParentNode == YAML_BLOCK_MAPPING_START_TOKEN {
-                
-                case YAML_VALUE_TOKEN: print("(Value token) ");
+                    lastKey = scalarToString(token.data.scalar)
+				
+                case YAML_VALUE_TOKEN:
+					print("(Value token) ");
                 
                     /* Block delimeters */
-                case YAML_BLOCK_SEQUENCE_START_TOKEN: print("Start Block (Sequence)");
-                case YAML_BLOCK_ENTRY_TOKEN:          print("Start Block (Entry)");
-                case YAML_BLOCK_END_TOKEN:            print("End block</b>");
-                    /* Data */
+                case YAML_BLOCK_SEQUENCE_START_TOKEN:
+					print("Start Block (Sequence)");
+					node = YAMLNode(key: lastKey!, value: nil, type: YAMLNodeType.YAMLNodeTypeSequence, parent: node)
+				
+                case YAML_BLOCK_ENTRY_TOKEN:
+					print("Start Block (Entry)");
+					node = YAMLNode(key: lastKey!, value: nil, type: YAMLNodeType.YAMLNodeTypeSequence, parent: node)
+				
+                case YAML_BLOCK_END_TOKEN:
+					print("End block</b>");
+//					node = node!.parent
+
+				/* Data */
                 case YAML_BLOCK_MAPPING_START_TOKEN:
                     print("[Block mapping]");
+//					let child = YAMLNode(key: lastKey!, value: nil, type: YAMLNodeType.YAMLNodeTypeMapping, parent: node)
+//					node?.addChild(child)
+				
                 case YAML_SCALAR_TOKEN:
                     print("scalar \(scalarToString(token.data.scalar)) ")
-                
+//					let child = YAMLNode(key: lastKey!, value: scalarToString(token.data.scalar), type: YAMLNodeType.YAMLNodeTypeMapping, parent: node)
+//					node?.addChild(child)
+				
                     /* Others */
                 default:
                     print("Got token of type %d\n", token.type)
