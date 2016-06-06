@@ -8,10 +8,9 @@
 
 import yaml
 
-typealias scalar_t = yaml_event_t.__Unnamed_union_data.__Unnamed_struct_scalar
+typealias scalar_t = yaml_token_s.__Unnamed_union_data.__Unnamed_struct_scalar
 
 public class YAMLParser {
-    
     
     // MARK: Initialization
     
@@ -49,51 +48,78 @@ public class YAMLParser {
         let fileHandler:UnsafeMutablePointer<FILE> = fopen(pathCString, modeCString)
         
         var parser = yaml_parser_t()
-        var event = yaml_event_t()
+        var token = yaml_token_t()
         
         yaml_parser_initialize(&parser)
         yaml_parser_set_input_file(&parser, fileHandler)
-        
-        repeat {
-            if yaml_parser_parse(&parser, &event) == 0 {
+		
+		var node:YAMLNode? = YAMLNode(key: "", value: nil, type: YAMLNodeType.YAMLNodeTypeSequence, parent: nil)
+		var lastKey:String? = "parent"
+		
+		repeat {
+            if yaml_parser_scan(&parser, &token) == 0 {
                 print("Parser error %d\n", parser.error)
                 exit(EXIT_FAILURE);
             }
             
-            switch(event.type) {
-                case YAML_NO_EVENT: print("No event!")
-                
+            let spaces = String(count: Int.init(parser.indent) + 1, repeatedValue: (" " as Character))
+            print(spaces, terminator:"")
+            
+            switch(token.type)
+            {
                 /* Stream start/end */
-                case YAML_STREAM_START_EVENT:   print("STREAM START")
-                case YAML_STREAM_END_EVENT:     print("STREAM END")
+                case YAML_STREAM_START_TOKEN:
+                    print("STREAM START");
+                case YAML_STREAM_END_TOKEN:
+                    print("STREAM END");
+				
+				/* Token types (read before actual token) */
+                case YAML_KEY_TOKEN:
+                    print("(Key token) ");
+                    lastKey = scalarToString(token.data.scalar)
+				
+                case YAML_VALUE_TOKEN:
+					print("(Value token) ");
                 
-                /* Block delimeters */
-                case YAML_DOCUMENT_START_EVENT: print("Start Document")
-                case YAML_DOCUMENT_END_EVENT:   print("End Document")
-                case YAML_SEQUENCE_START_EVENT: print("Start Sequence")
-                case YAML_SEQUENCE_END_EVENT:   print("End Sequence")
-                case YAML_MAPPING_START_EVENT:  print("Start Mapping")
-                case YAML_MAPPING_END_EVENT:    print("End Mapping")
-                
-                /* Data */
-                case YAML_ALIAS_EVENT:
-                    print("Got alias (anchor: \(event.data.alias.anchor)");
-                case YAML_SCALAR_EVENT:
-                    
-                    print("Got scalar (value: \(scalarToString(event.data.scalar)))")
-                
-                
-            default: print("Uknown event");
+                    /* Block delimeters */
+                case YAML_BLOCK_SEQUENCE_START_TOKEN:
+					print("Start Block (Sequence)");
+					node = YAMLNode(key: lastKey!, value: nil, type: YAMLNodeType.YAMLNodeTypeSequence, parent: node)
+				
+                case YAML_BLOCK_ENTRY_TOKEN:
+					print("Start Block (Entry)");
+					node = YAMLNode(key: lastKey!, value: nil, type: YAMLNodeType.YAMLNodeTypeSequence, parent: node)
+				
+                case YAML_BLOCK_END_TOKEN:
+					print("End block</b>");
+//					node = node!.parent
+
+				/* Data */
+                case YAML_BLOCK_MAPPING_START_TOKEN:
+                    print("[Block mapping]");
+//					let child = YAMLNode(key: lastKey!, value: nil, type: YAMLNodeType.YAMLNodeTypeMapping, parent: node)
+//					node?.addChild(child)
+				
+                case YAML_SCALAR_TOKEN:
+                    print("scalar \(scalarToString(token.data.scalar)) ")
+//					let child = YAMLNode(key: lastKey!, value: scalarToString(token.data.scalar), type: YAMLNodeType.YAMLNodeTypeMapping, parent: node)
+//					node?.addChild(child)
+				
+                    /* Others */
+                default:
+                    print("Got token of type %d\n", token.type)
+            }
+            if token.type != YAML_STREAM_END_TOKEN {
+                    yaml_token_delete(&token);
             }
             
-            if event.type != YAML_STREAM_END_EVENT {
-                yaml_event_delete(&event);
-            }
-        } while event.type != YAML_STREAM_END_EVENT
+            
+        }
+        while token.type != YAML_STREAM_END_TOKEN
         
-        yaml_event_delete(&event);
-        
+        yaml_token_delete(&token);
         yaml_parser_delete(&parser);
+        
         fclose(fileHandler);
     }
 
