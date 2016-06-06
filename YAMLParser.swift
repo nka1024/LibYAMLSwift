@@ -53,25 +53,40 @@ public class YAMLParser {
         yaml_parser_initialize(&parser)
         yaml_parser_set_input_file(&parser, fileHandler)
         
+//        var result:Dictionary<String, AnyObject> ;
+//        var currentMap:Dictionary<String, AnyObject>;
+//        var currentSequence:Array<AnyObject>;
+//        var currentKey:String?;
+//        var currentValue:AnyObject;
+//        var lastTokenType:yaml_token_type_e = YAML_STREAM_START_TOKEN;
+//        var currentParentNode:yaml_token_type_e = YAML_BLOCK_MAPPING_START_TOKEN;
+//        
+//        var path:Array<AnyObject> = Array()
+        
         repeat {
             if yaml_parser_scan(&parser, &token) == 0 {
                 print("Parser error %d\n", parser.error)
                 exit(EXIT_FAILURE);
             }
             
-            
             let spaces = String(count: Int.init(parser.indent) + 1, repeatedValue: (" " as Character))
             print(spaces, terminator:"")
-            
             
             switch(token.type)
             {
                 /* Stream start/end */
-                case YAML_STREAM_START_TOKEN: print("STREAM START"); break;
-                case YAML_STREAM_END_TOKEN:   print("STREAM END");   break;
+                case YAML_STREAM_START_TOKEN:
+                    print("STREAM START");
+                case YAML_STREAM_END_TOKEN:
+                    print("STREAM END");
                     /* Token types (read before actual token) */
-                case YAML_KEY_TOKEN:   print("(Key token)   "); break;
-                case YAML_VALUE_TOKEN: print("(Value token) "); break;
+                case YAML_KEY_TOKEN:
+                    print("(Key token) ");
+                    currentKey = scalarToString(token.data.scalar)
+//                    if currentParentNode == YAML_BLOCK_MAPPING_START_TOKEN {
+                
+                case YAML_VALUE_TOKEN: print("(Value token) ");
+                
                     /* Block delimeters */
                 case YAML_BLOCK_SEQUENCE_START_TOKEN: print("Start Block (Sequence)");
                 case YAML_BLOCK_ENTRY_TOKEN:          print("Start Block (Entry)");
@@ -84,7 +99,7 @@ public class YAMLParser {
                 
                     /* Others */
                 default:
-                    print("Got token of type %d\n", token.type);
+                    print("Got token of type %d\n", token.type)
             }
             if token.type != YAML_STREAM_END_TOKEN {
                     yaml_token_delete(&token);

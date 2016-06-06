@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		847593F61D0488F900C9278F /* YAMLNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 847593F51D0488F900C9278F /* YAMLNode.swift */; };
+		847593F71D0488F900C9278F /* YAMLNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 847593F51D0488F900C9278F /* YAMLNode.swift */; };
 		84E158141D0337F700091818 /* LibYAMLSwift_OSX.h in Headers */ = {isa = PBXBuildFile; fileRef = 84E158131D0337F700091818 /* LibYAMLSwift_OSX.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		84E158211D03381100091818 /* LibYAMLSwift_iOS.h in Headers */ = {isa = PBXBuildFile; fileRef = 84E158201D03381100091818 /* LibYAMLSwift_iOS.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		84E158261D03381F00091818 /* yaml_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 843B02571D0318C4005B9D71 /* yaml_private.h */; };
@@ -47,6 +49,7 @@
 		843B02571D0318C4005B9D71 /* yaml_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = yaml_private.h; sourceTree = "<group>"; };
 		843B02671D0318EC005B9D71 /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
 		843B02681D0318EC005B9D71 /* yaml.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = yaml.h; sourceTree = "<group>"; };
+		847593F51D0488F900C9278F /* YAMLNode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = YAMLNode.swift; sourceTree = "<group>"; };
 		84E158111D0337F700091818 /* LibYAMLSwift_OSX.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = LibYAMLSwift_OSX.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		84E158131D0337F700091818 /* LibYAMLSwift_OSX.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LibYAMLSwift_OSX.h; sourceTree = "<group>"; };
 		84E158151D0337F700091818 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -78,6 +81,7 @@
 			isa = PBXGroup;
 			children = (
 				84E158351D03388800091818 /* YAMLParser.swift */,
+				847593F51D0488F900C9278F /* YAMLNode.swift */,
 				84E158121D0337F700091818 /* LibYAMLSwift_OSX */,
 				84E1581F1D03381100091818 /* LibYAMLSwift_iOS */,
 				843B02101D03160B005B9D71 /* Products */,
@@ -266,6 +270,7 @@
 				84E1583B1D0338A000091818 /* loader.c in Sources */,
 				84E1583C1D0338A000091818 /* parser.c in Sources */,
 				84E1583D1D0338A000091818 /* reader.c in Sources */,
+				847593F61D0488F900C9278F /* YAMLNode.swift in Sources */,
 				84E1583E1D0338A000091818 /* scanner.c in Sources */,
 				84E1583F1D0338A000091818 /* writer.c in Sources */,
 				84E158361D03388800091818 /* YAMLParser.swift in Sources */,
@@ -282,6 +287,7 @@
 				84E1582C1D03382900091818 /* emitter.c in Sources */,
 				84E1582D1D03382900091818 /* loader.c in Sources */,
 				84E1582E1D03382900091818 /* parser.c in Sources */,
+				847593F71D0488F900C9278F /* YAMLNode.swift in Sources */,
 				84E1582F1D03382900091818 /* reader.c in Sources */,
 				84E158301D03382900091818 /* scanner.c in Sources */,
 				84E158311D03382900091818 /* writer.c in Sources */,
@@ -486,6 +492,7 @@
 				84E158181D0337F700091818 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		84E158231D03381100091818 /* Build configuration list for PBXNativeTarget "LibYAMLSwift_iOS" */ = {
 			isa = XCConfigurationList;
@@ -494,6 +501,7 @@
 				84E158251D03381100091818 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
