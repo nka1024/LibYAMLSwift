@@ -9,46 +9,96 @@
 import Foundation
 
 enum YAMLNodeType  {
-    case YAMLNodeTypeMapping
-    case YAMLNodeTypeSequence
-    case YAMLNodeTypeScalar
+	case Unknown
+	case Mapping
+    case Sequence
+    case Scalar
 }
 
 class YAMLNode  {
     
-	var key   :String
-	var value :AnyObject
+	var key:String = "_"
+	var type:YAMLNodeType = YAMLNodeType.Unknown
 	
-    var type  :YAMLNodeType
-	var parent:YAMLNode?
+	var children:Array<YAMLNode> = []
+	var value:String?
 	
-	init (key:String, value:AnyObject?, type:YAMLNodeType, parent:YAMLNode?) {
-        
-        self.type   = type
-        self.parent = parent
-		self.key    = key
+	// MARK: public routines
+	
+	func addChild(child:YAMLNode?) -> Void {
+		children.append(child!)
+    }
+	
+	
+	func printDescription() -> Void {
+		
+		print("\"\(key)\":", terminator:"")
+		
+		printValue()
+	}
+	
+	func printValue() -> Void {
 		
 		switch type {
-			case YAMLNodeType.YAMLNodeTypeMapping:   self.value = Dictionary<String, YAMLNode>()
-			case YAMLNodeType.YAMLNodeTypeSequence:  self.value = Array<AnyObject>()
-			case YAMLNodeType.YAMLNodeTypeScalar:    self.value = value!
+			case .Scalar:
+				print("\"\(value!)\"")
+				
+			case .Mapping:
+				print ("{", terminator:"")
+				for node in children {
+					node.printDescription()
+					print(",")
+				}
+				print ("}")
+				
+			case .Sequence:
+				print ("[", terminator:"")
+				for node in children {
+					
+					node.printValue()
+					
+					print(",")
+				}
+				print ("]")
+				
+				
+			case .Unknown:
+				print("Unknown node")
+				
 		}
-    }
-    
-	func addChild(child:YAMLNode) -> Void {
+		
+	}
+	
+	func nativeObject() -> AnyObject? {
 		
 		switch type {
-			case YAMLNodeType.YAMLNodeTypeMapping:
-				let value:Dictionary<String, AnyObject> = self.value as! Dictionary<String, AnyObject>
-				self.value.setValue(child, forKey: child.key)
+			case .Scalar:
+				return value!
 			
-			case YAMLNodeType.YAMLNodeTypeSequence:
-				let value:Array<AnyObject> = self.value as! Array<AnyObject>
-				self.value.addObject(child)
+			case .Mapping:
+				var object = Dictionary<String, AnyObject>()
+				
+				for node in children {
+					object[node.key] = node.nativeObject()
+				}
+				
+				return object
+				
+			case .Sequence:
+				
+				var object = Array<AnyObject>()
+				
+				for node in children {
+					object.append(node.nativeObject()!)
+				}
+			return object
 			
-			case YAMLNodeType.YAMLNodeTypeScalar:
-				print("Error: trying to add child to scalar node")
+			case .Unknown:
+				return self
+				
 		}
-    }
+		return nil
+	}
+
 	
 }
