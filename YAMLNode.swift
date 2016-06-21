@@ -40,35 +40,65 @@ class YAMLNode  {
 	func printValue() -> Void {
 		
 		switch type {
-		case .Scalar:
-			print("\"\(value!)\"")
-			
-		case .Mapping:
-			print ("{", terminator:"")
-			for node in children {
-				node.printDescription()
-				print(",")
-			}
-			print ("}")
-			
-		case .Sequence:
-			print ("[", terminator:"")
-			for node in children {
+			case .Scalar:
+				print("\"\(value!)\"")
 				
-				node.printValue()
+			case .Mapping:
+				print ("{", terminator:"")
+				for node in children {
+					node.printDescription()
+					print(",")
+				}
+				print ("}")
 				
-				print(",")
-			}
-			print ("]")
-			
-			
-		case .Unknown:
-			print("Unknown node")
-			
+			case .Sequence:
+				print ("[", terminator:"")
+				for node in children {
+					
+					node.printValue()
+					
+					print(",")
+				}
+				print ("]")
+				
+				
+			case .Unknown:
+				print("Unknown node")
+				
 		}
 		
 	}
-
 	
+	func nativeObject() -> AnyObject? {
+		
+		switch type {
+			case .Scalar:
+				return value!
+			
+			case .Mapping:
+				var object = Dictionary<String, AnyObject>()
+				
+				for node in children {
+					object[node.key] = node.nativeObject()
+				}
+				
+				return object
+				
+			case .Sequence:
+				
+				var object = Array<AnyObject>()
+				
+				for node in children {
+					object.append(node.nativeObject()!)
+				}
+			return object
+			
+			case .Unknown:
+				return self
+				
+		}
+		return nil
+	}
+
 	
 }

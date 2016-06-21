@@ -41,7 +41,41 @@ public class YAMLParser {
     
     // MARK: Stream parse
     
-    public func parseStream (path:String, callback: (data:String) -> Void){
+    public func parseStream (path:String, callback: (data:AnyObject) -> Void){
+		
+		func push(node:YAMLNode?) -> Void {
+			if (node != nil) {
+				stack.append(node!)
+			}
+		}
+		
+		func pop() -> YAMLNode? {
+			if (stack.count > 0) {
+				let node = stack.removeLast()
+				
+				if (stack.count == 0) {
+					dispatchNode(node)
+					return makeParentNode()
+				}
+				
+				return node
+			} else {
+				return nil
+			}
+		}
+	
+		func dispatchNode(node:YAMLNode) -> Void {
+			
+			callback(data:node.nativeObject()!)
+			
+//			print("{")
+//			node.printDescription()
+//			print("}")
+			
+//			let result = parent?.nativeObject()
+//			print(result)
+		}
+		
         let mode = "rb"
         
         let pathCString = path.cStringUsingEncoding(NSUTF8StringEncoding)!
@@ -55,12 +89,11 @@ public class YAMLParser {
         yaml_parser_initialize(&parser)
         yaml_parser_set_input_file(&parser, fileHandler)
 		
-		var node:YAMLNode? = YAMLNode()
-		node?.type = .Mapping
+		var node = makeParentNode()
 		var lastKey:String? = "parent"
 		var lastTokenType = 0;
 		
-		let parent = node
+		
 		var sequence:YAMLNode? = nil
 		
 		repeat {
@@ -163,12 +196,7 @@ public class YAMLParser {
         }
         while token.type != YAML_STREAM_END_TOKEN
 		
-		
-		print("{")
-		parent?.printDescription()
-		print("}")
-		
-        yaml_token_delete(&token);
+		yaml_token_delete(&token);
         yaml_parser_delete(&parser);
         
         fclose(fileHandler);
@@ -192,24 +220,17 @@ public class YAMLParser {
         }
     }
 	
-	func push(node:YAMLNode?) -> Void {
-		if (node != nil) {
-			stack.append(node!)
-		}
-	}
 	
-	func pop() -> YAMLNode? {
-		if (stack.count > 0) {
-			let node = stack.removeLast()
-			return node
-		} else {
-			return nil
-		}
-	}
 	
 	func noop() -> Void {
 		
-	
 	}
+	
+	func makeParentNode() -> YAMLNode? {
+		var node:YAMLNode? = YAMLNode()
+		node?.type = .Mapping
+		return node
+	}
+	
 
 }
