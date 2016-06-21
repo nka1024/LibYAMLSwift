@@ -9,46 +9,61 @@
 import Foundation
 
 enum YAMLNodeType  {
-    case YAMLNodeTypeMapping
-    case YAMLNodeTypeSequence
-    case YAMLNodeTypeScalar
+	case Unknown
+	case Mapping
+    case Sequence
+    case Scalar
 }
 
 class YAMLNode  {
     
-	var key   :String
-	var value :AnyObject
+	var key:String = "_"
+	var type:YAMLNodeType = YAMLNodeType.Unknown
 	
-    var type  :YAMLNodeType
-	var parent:YAMLNode?
+	var children:Array<YAMLNode> = []
+	var value:String?
+//	var parent:YAMLNode?
+
 	
-	init (key:String, value:AnyObject?, type:YAMLNodeType, parent:YAMLNode?) {
-        
-        self.type   = type
-        self.parent = parent
-		self.key    = key
+	// MARK: public routines
+	
+	func addChild(child:YAMLNode?) -> Void {
+		children.append(child!)
+    }
+	
+	
+	func printDescription() -> Void {
+		
+		print("\"\(key)\":", terminator:"")
 		
 		switch type {
-			case YAMLNodeType.YAMLNodeTypeMapping:   self.value = Dictionary<String, YAMLNode>()
-			case YAMLNodeType.YAMLNodeTypeSequence:  self.value = Array<AnyObject>()
-			case YAMLNodeType.YAMLNodeTypeScalar:    self.value = value!
+			case .Scalar:
+				print("\"\(value!)\"")
+				
+			case .Mapping:
+				print ("{", terminator:"")
+				for node in children {
+					node.printDescription()
+					print(",")
+				}
+				print ("}")
+			
+			case .Sequence:
+				print ("[", terminator:"")
+				for node in children {
+					print("{")
+					node.printDescription()
+					print("}")
+					print(",")
+				}
+				print ("]")
+				
+				
+			case .Unknown:
+				print("Unknown node")
+				
 		}
-    }
-    
-	func addChild(child:YAMLNode) -> Void {
 		
-		switch type {
-			case YAMLNodeType.YAMLNodeTypeMapping:
-				let value:Dictionary<String, AnyObject> = self.value as! Dictionary<String, AnyObject>
-				self.value.setValue(child, forKey: child.key)
-			
-			case YAMLNodeType.YAMLNodeTypeSequence:
-				let value:Array<AnyObject> = self.value as! Array<AnyObject>
-				self.value.addObject(child)
-			
-			case YAMLNodeType.YAMLNodeTypeScalar:
-				print("Error: trying to add child to scalar node")
-		}
-    }
+	}
 	
 }

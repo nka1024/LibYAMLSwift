@@ -11,7 +11,9 @@ import yaml
 typealias scalar_t = yaml_token_s.__Unnamed_union_data.__Unnamed_struct_scalar
 
 public class YAMLParser {
-    
+	
+	var stack:Array<YAMLNode> = []
+	
     // MARK: Initialization
     
     public init() {
@@ -53,76 +55,123 @@ public class YAMLParser {
         yaml_parser_initialize(&parser)
         yaml_parser_set_input_file(&parser, fileHandler)
 		
-		var node:YAMLNode? = YAMLNode(key: "", value: nil, type: YAMLNodeType.YAMLNodeTypeSequence, parent: nil)
+		var node:YAMLNode? = YAMLNode()
+		node?.type = .Mapping
 		var lastKey:String? = "parent"
+		var lastTokenType = 0;
+		
+		let parent = node
+		var sequence:YAMLNode? = nil
 		
 		repeat {
             if yaml_parser_scan(&parser, &token) == 0 {
                 print("Parser error %d\n", parser.error)
                 exit(EXIT_FAILURE);
             }
-            
-            let spaces = String(count: Int.init(parser.indent) + 1, repeatedValue: (" " as Character))
-            print(spaces, terminator:"")
-            
+			
+			if (lastTokenType == 1) {
+				let spaces = String(count: Int.init(parser.indent) + 1, repeatedValue: (" " as Character))
+				print(spaces, terminator:"")
+			}
+			
             switch(token.type)
             {
                 /* Stream start/end */
-                case YAML_STREAM_START_TOKEN:
-                    print("STREAM START");
-                case YAML_STREAM_END_TOKEN:
-                    print("STREAM END");
+                case YAML_STREAM_START_TOKEN: noop()
+                case YAML_STREAM_END_TOKEN:   noop()
 				
 				/* Token types (read before actual token) */
                 case YAML_KEY_TOKEN:
-                    print("(Key token) ");
-                    lastKey = scalarToString(token.data.scalar)
+					lastTokenType = 0;
 				
                 case YAML_VALUE_TOKEN:
-					print("(Value token) ");
-                
+					lastTokenType = 1;
+				
                     /* Block delimeters */
                 case YAML_BLOCK_SEQUENCE_START_TOKEN:
 					print("Start Block (Sequence)");
-					node = YAMLNode(key: lastKey!, value: nil, type: YAMLNodeType.YAMLNodeTypeSequence, parent: node)
+					noop()
 				
                 case YAML_BLOCK_ENTRY_TOKEN:
 					print("Start Block (Entry)");
-					node = YAMLNode(key: lastKey!, value: nil, type: YAMLNodeType.YAMLNodeTypeSequence, parent: node)
-				
+					sequence = node
+					push(node)
+					node?.type = .Sequence
+									
                 case YAML_BLOCK_END_TOKEN:
 					print("End block</b>");
-//					node = node!.parent
-
+				
+					node = pop()
+					if (sequence != nil) {
+						sequence = nil
+					}
+				
+	
 				/* Data */
                 case YAML_BLOCK_MAPPING_START_TOKEN:
-                    print("[Block mapping]");
-//					let child = YAMLNode(key: lastKey!, value: nil, type: YAMLNodeType.YAMLNodeTypeMapping, parent: node)
-//					node?.addChild(child)
+					print("[Block mapping]");
+
+					if (sequence != nil ) {
+						node = YAMLNode()
+						sequence?.addChild(node)
+					}
+					
+					node?.type = YAMLNodeType.Mapping
+
 				
                 case YAML_SCALAR_TOKEN:
-                    print("scalar \(scalarToString(token.data.scalar)) ")
-//					let child = YAMLNode(key: lastKey!, value: scalarToString(token.data.scalar), type: YAMLNodeType.YAMLNodeTypeMapping, parent: node)
-//					node?.addChild(child)
+					lastKey = scalarToString(token.data.scalar)
+
+					if (lastTokenType == 0) {
+						print("\"\(lastKey!)\":")
+					}
+					else {
+						print("\"\(lastKey!)\":")
+					}
+					
+					if (node?.type == .Sequence) {
+						sequence = nil
+						node = pop();
+						
+					}
+					
+					if (lastTokenType == 0) {
+						push(node)
+						
+						let parent = node
+						node = YAMLNode()
+						parent?.addChild(node)
+						node?.key = lastKey ?? ""
+					}
+					else {
+						node?.value = lastKey
+						node?.type = YAMLNodeType.Scalar
+						node = pop()
+					}
 				
                     /* Others */
                 default:
                     print("Got token of type %d\n", token.type)
             }
+			
             if token.type != YAML_STREAM_END_TOKEN {
                     yaml_token_delete(&token);
             }
-            
-            
+	
         }
         while token.type != YAML_STREAM_END_TOKEN
-        
+		
+		
+		print("{")
+		parent?.printDescription()
+		print("}")
+		
         yaml_token_delete(&token);
         yaml_parser_delete(&parser);
         
         fclose(fileHandler);
     }
-
+	
         
     // MARK: Private routines
     
@@ -140,4 +189,25 @@ public class YAMLParser {
             return nil
         }
     }
+	
+	func push(node:YAMLNode?) -> Void {
+		if (node != nil) {
+			stack.append(node!)
+		}
+	}
+	
+	func pop() -> YAMLNode? {
+		if (stack.count > 0) {
+			let node = stack.removeLast()
+			return node
+		} else {
+			return nil
+		}
+	}
+	
+	func noop() -> Void {
+		
+	
+	}
+
 }
