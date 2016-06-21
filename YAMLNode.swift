@@ -22,8 +22,6 @@ class YAMLNode  {
 	
 	var children:Array<YAMLNode> = []
 	var value:String?
-//	var parent:YAMLNode?
-
 	
 	// MARK: public routines
 	
@@ -36,34 +34,41 @@ class YAMLNode  {
 		
 		print("\"\(key)\":", terminator:"")
 		
+		printValue()
+	}
+	
+	func printValue() -> Void {
+		
 		switch type {
-			case .Scalar:
-				print("\"\(value!)\"")
-				
-			case .Mapping:
-				print ("{", terminator:"")
-				for node in children {
-					node.printDescription()
-					print(",")
-				}
-				print ("}")
+		case .Scalar:
+			print("\"\(value!)\"")
 			
-			case .Sequence:
-				print ("[", terminator:"")
-				for node in children {
-					print("{")
-					node.printDescription()
-					print("}")
-					print(",")
-				}
-				print ("]")
+		case .Mapping:
+			print ("{", terminator:"")
+			for node in children {
+				node.printDescription()
+				print(",")
+			}
+			print ("}")
+			
+		case .Sequence:
+			print ("[", terminator:"")
+			for node in children {
 				
+				node.printValue()
 				
-			case .Unknown:
-				print("Unknown node")
-				
+				print(",")
+			}
+			print ("]")
+			
+			
+		case .Unknown:
+			print("Unknown node")
+			
 		}
 		
 	}
+
+	
 	
 }

@@ -89,17 +89,17 @@ public class YAMLParser {
 				
                     /* Block delimeters */
                 case YAML_BLOCK_SEQUENCE_START_TOKEN:
-					print("Start Block (Sequence)");
+//					print("Start Block (Sequence)");
 					noop()
 				
                 case YAML_BLOCK_ENTRY_TOKEN:
-					print("Start Block (Entry)");
+//					print("Start Block (Entry)");
 					sequence = node
 					push(node)
 					node?.type = .Sequence
-									
+				
                 case YAML_BLOCK_END_TOKEN:
-					print("End block</b>");
+//					print("End block</b>");
 				
 					node = pop()
 					if (sequence != nil) {
@@ -109,7 +109,7 @@ public class YAMLParser {
 	
 				/* Data */
                 case YAML_BLOCK_MAPPING_START_TOKEN:
-					print("[Block mapping]");
+//					print("[Block mapping]");
 
 					if (sequence != nil ) {
 						node = YAMLNode()
@@ -122,30 +122,32 @@ public class YAMLParser {
                 case YAML_SCALAR_TOKEN:
 					lastKey = scalarToString(token.data.scalar)
 
-					if (lastTokenType == 0) {
-						print("\"\(lastKey!)\":")
-					}
-					else {
-						print("\"\(lastKey!)\":")
-					}
+//					if (lastTokenType == 0) {
+//						print("\"\(lastKey!)\":")
+//					}
+//					else {
+//						print("\"\(lastKey!)\":")
+//					}
 					
 					if (node?.type == .Sequence) {
 						sequence = nil
 						node = pop();
-						
 					}
 					
 					if (lastTokenType == 0) {
-						push(node)
 						
 						let parent = node
+						push(node)
+						
 						node = YAMLNode()
-						parent?.addChild(node)
 						node?.key = lastKey ?? ""
+						
+						parent?.addChild(node)
 					}
 					else {
 						node?.value = lastKey
 						node?.type = YAMLNodeType.Scalar
+						
 						node = pop()
 					}
 				
