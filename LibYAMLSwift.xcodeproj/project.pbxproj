@@ -218,6 +218,7 @@
 				TargetAttributes = {
 					84E158101D0337F700091818 = {
 						CreatedOnToolsVersion = 7.3;
+						LastSwiftMigration = 0810;
 					};
 					84E1581D1D03381100091818 = {
 						CreatedOnToolsVersion = 7.3;
@@ -410,6 +411,7 @@
 				SKIP_INSTALL = YES;
 				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/yaml-0.1.5";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -434,6 +436,7 @@
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
 				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/yaml-0.1.5";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};

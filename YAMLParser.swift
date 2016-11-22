@@ -10,7 +10,7 @@ import yaml
 
 typealias scalar_t = yaml_token_s.__Unnamed_union_data.__Unnamed_struct_scalar
 
-public class YAMLParser {
+open class YAMLParser {
 	
 	var stack:Array<YAMLNode> = []
 	
@@ -23,12 +23,12 @@ public class YAMLParser {
     
     // MARK: Version
     
-    public func yamlGetVersionString() -> String? {
+    open func yamlGetVersionString() -> String? {
         let version = yaml_get_version_string()
-        return String.fromCString(version)
+        return String(cString: version!)
     }
 
-    public func yamlGetVersion() -> (major: Int32, minor: Int32, patch: Int32)? {
+    open func yamlGetVersion() -> (major: Int32, minor: Int32, patch: Int32)? {
         var major:Int32 = 0;
         var minor:Int32 = 0;
         var patch:Int32 = 0;
@@ -41,9 +41,9 @@ public class YAMLParser {
     
     // MARK: Stream parse
     
-    public func parseStream (path:String, callback: (data:AnyObject) -> Void){
+    open func parseStream (_ path:String, callback: @escaping (_ data:AnyObject) -> Void){
 		
-		func push(node:YAMLNode?) -> Void {
+		func push(_ node:YAMLNode?) -> Void {
 			if (node != nil) {
 				stack.append(node!)
 			}
@@ -64,9 +64,9 @@ public class YAMLParser {
 			}
 		}
 	
-		func dispatchNode(node:YAMLNode) -> Void {
+		func dispatchNode(_ node:YAMLNode) -> Void {
 			
-			callback(data:node.nativeObject()!)
+			callback(node.nativeObject()!)
 			
 //			print("{")
 //			node.printDescription()
@@ -78,8 +78,8 @@ public class YAMLParser {
 		
         let mode = "rb"
         
-        let pathCString = path.cStringUsingEncoding(NSUTF8StringEncoding)!
-        let modeCString = mode.cStringUsingEncoding(NSUTF8StringEncoding)!
+        let pathCString = path.cString(using: String.Encoding.utf8)!
+        let modeCString = mode.cString(using: String.Encoding.utf8)!
         
         let fileHandler:UnsafeMutablePointer<FILE> = fopen(pathCString, modeCString)
         
@@ -103,7 +103,7 @@ public class YAMLParser {
             }
 			
 			if (lastTokenType == 1) {
-				let spaces = String(count: Int.init(parser.indent) + 1, repeatedValue: (" " as Character))
+				let spaces = String(repeating: String((" " as Character)), count: Int.init(parser.indent) + 1)
 				print(spaces, terminator:"")
 			}
 			
@@ -129,7 +129,7 @@ public class YAMLParser {
 //					print("Start Block (Entry)");
 					sequence = node
 					push(node)
-					node?.type = .Sequence
+					node?.type = .sequence
 				
                 case YAML_BLOCK_END_TOKEN:
 //					print("End block</b>");
@@ -149,7 +149,7 @@ public class YAMLParser {
 						sequence?.addChild(node)
 					}
 					
-					node?.type = YAMLNodeType.Mapping
+					node?.type = YAMLNodeType.mapping
 
 				
                 case YAML_SCALAR_TOKEN:
@@ -162,7 +162,7 @@ public class YAMLParser {
 //						print("\"\(lastKey!)\":")
 //					}
 					
-					if (node?.type == .Sequence) {
+					if (node?.type == .sequence) {
 						sequence = nil
 						node = pop();
 					}
@@ -179,7 +179,7 @@ public class YAMLParser {
 					}
 					else {
 						node?.value = lastKey
-						node?.type = YAMLNodeType.Scalar
+						node?.type = YAMLNodeType.scalar
 						
 						node = pop()
 					}
@@ -205,15 +205,15 @@ public class YAMLParser {
         
     // MARK: Private routines
     
-    func scalarToString(scalar:scalar_t) -> String? {
+    func scalarToString(_ scalar:scalar_t) -> String? {
         let len = scalar.length
         let ptr = scalar.value
     
-        return cStringToString(ptr, length: len)
+        return cStringToString(ptr!, length: len)
     }
     
-    func cStringToString(ptr: UnsafeMutablePointer<UInt8>, length len: Int) -> String? {
-        if let theString = NSString(bytes: ptr, length: len, encoding: NSUTF8StringEncoding) {
+    func cStringToString(_ ptr: UnsafeMutablePointer<UInt8>, length len: Int) -> String? {
+        if let theString = NSString(bytes: ptr, length: len, encoding: String.Encoding.utf8.rawValue) {
             return theString as String
         } else {
             return nil
@@ -228,7 +228,7 @@ public class YAMLParser {
 	
 	func makeParentNode() -> YAMLNode? {
 		var node:YAMLNode? = YAMLNode()
-		node?.type = .Mapping
+		node?.type = .mapping
 		return node
 	}
 	

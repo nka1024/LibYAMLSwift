@@ -9,23 +9,23 @@
 import Foundation
 
 enum YAMLNodeType  {
-	case Unknown
-	case Mapping
-    case Sequence
-    case Scalar
+	case unknown
+	case mapping
+    case sequence
+    case scalar
 }
 
 class YAMLNode  {
     
 	var key:String = "_"
-	var type:YAMLNodeType = YAMLNodeType.Unknown
+	var type:YAMLNodeType = YAMLNodeType.unknown
 	
 	var children:Array<YAMLNode> = []
 	var value:String?
 	
 	// MARK: public routines
 	
-	func addChild(child:YAMLNode?) -> Void {
+	func addChild(_ child:YAMLNode?) -> Void {
 		children.append(child!)
     }
 	
@@ -40,10 +40,10 @@ class YAMLNode  {
 	func printValue() -> Void {
 		
 		switch type {
-			case .Scalar:
+			case .scalar:
 				print("\"\(value!)\"")
 				
-			case .Mapping:
+			case .mapping:
 				print ("{", terminator:"")
 				for node in children {
 					node.printDescription()
@@ -51,7 +51,7 @@ class YAMLNode  {
 				}
 				print ("}")
 				
-			case .Sequence:
+			case .sequence:
 				print ("[", terminator:"")
 				for node in children {
 					
@@ -62,7 +62,7 @@ class YAMLNode  {
 				print ("]")
 				
 				
-			case .Unknown:
+			case .unknown:
 				print("Unknown node")
 				
 		}
@@ -72,28 +72,28 @@ class YAMLNode  {
 	func nativeObject() -> AnyObject? {
 		
 		switch type {
-			case .Scalar:
-				return value!
+			case .scalar:
+				return value! as AnyObject?
 			
-			case .Mapping:
+			case .mapping:
 				var object = Dictionary<String, AnyObject>()
 				
 				for node in children {
 					object[node.key] = node.nativeObject()
 				}
 				
-				return object
+				return object as AnyObject?
 				
-			case .Sequence:
+			case .sequence:
 				
 				var object = Array<AnyObject>()
 				
 				for node in children {
 					object.append(node.nativeObject()!)
 				}
-			return object
+			return object as AnyObject?
 			
-			case .Unknown:
+			case .unknown:
 				return self
 				
 		}
